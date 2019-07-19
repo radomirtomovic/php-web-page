@@ -1,4 +1,6 @@
 <?php
+define('PHP_MAILER_DEBUG_LOG', 0);
+
 
 use App\Controllers\ContactController;
 use App\Database\Connection;
@@ -7,18 +9,18 @@ use App\Models\Register;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 $dotEnv = Dotenv\Dotenv::create(__DIR__ . '/../');
-
 $dotEnv->load();
+
 require_once __DIR__ . '/../helper.php';
 $urlPath = $_GET['page'] ?? 'index';
 $connection = new Connection();
 switch ($urlPath) {
     case 'index':
-        $contact = new ContactController();
+        $contact = new ContactController($connection);
         $contact->index();
         break;
     case 'submit':
-        $contact = new ContactController();
+        $contact = new ContactController($connection);
         $model = new Contact();
 
         if (!isset($_POST['submit'])) {
@@ -34,7 +36,7 @@ switch ($urlPath) {
         $model->email = $_POST['email'];
         $model->message = $_POST['message'];
 
-        if (!$contact->submit($model, $connection)) {
+        if (!$contact->submit($model)) {
             echo 'Error';
         } else {
             echo 'Your data has been inserted successfully';
@@ -42,7 +44,7 @@ switch ($urlPath) {
 
         break;
     case 'register':
-        $login = new ContactController();
+        $login = new ContactController($connection);
         $model = new Register();
         if (!isset($_POST['submit'])) {
             die('Form must be submitted');
